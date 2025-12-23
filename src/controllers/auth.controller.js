@@ -133,3 +133,35 @@ export const refresh = async (req, res) => {
         accessToken: newAccessToken
     });
 };
+
+export const logout = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    //if no cookie, the user is already logged out
+    if (!refreshToken) {
+        return res.status(204).send();
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+    } catch (error) {
+        //invalid token ? still clear the cookie
+        res.clearCookie("refreshToken");
+        return res.status(204).send();
+    }
+
+    const user = await User.findById(decoded.userId);
+
+    if (user) {
+        user.refreshToken = null;
+        await user.save();
+    }
+
+    res.clearCookie("refreshToken");
+
+    return res.status(204).send();
+}
