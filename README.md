@@ -1,1 +1,1 @@
-![alt text](src\assets\working_model.png)
+![alt text](src/assets/working_model.png)
