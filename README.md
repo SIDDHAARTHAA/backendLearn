@@ -1,6 +1,51 @@
 ![alt text](src/assets/working_model.png)
 
-# 🔐 Authentication System Documentation
+## 🏗️ System Architecture Diagram
+
+```mermaid
+graph TD
+    A[Client Request] --> B[Express Server]
+    B --> C[requestIdMiddleware]
+    C --> D[express.json & cookieParser]
+    D --> E[generalLimiter]
+    E --> F[Routes /auth/*]
+    
+    F --> G{Auth Routes}
+    G -->|POST /signup| H[authLimiter]
+    G -->|POST /login| H
+    G -->|POST /refresh| H
+    G -->|GET /me| I[generalLimiter + authMiddleware]
+    G -->|POST /logout| I
+    G -->|DELETE /admin/users/:id| J[generalLimiter + authMiddleware + requireRole ADMIN]
+    
+    H --> K[validate Schema]
+    K --> L[asyncHandler Controller]
+    L --> M[Controller Logic]
+    M --> N[Database MongoDB]
+    M --> O[Token Utils]
+    O --> P[JWT Sign/Verify]
+    
+    I --> Q[authMiddleware]
+    Q --> R[Verify Access Token]
+    R -->|Valid| L
+    R -->|Invalid| S[401 Error]
+    
+    J --> Q
+    Q --> T[requireRole]
+    T -->|Has Role| L
+    T -->|No Role| U[403 Error]
+    
+    M --> V[log Function]
+    V --> W[Console JSON Log]
+    
+    L --> X[Response]
+    X --> Y[errorHandler on Error]
+    Y --> Z[Structured Error Log]
+    
+    N --> AA[Mongoose Models]
+    AA --> AB[User Model]
+```
+## 🔐 Authentication System Documentation
 
 This backend implements **production-grade authentication** using:
 
@@ -172,49 +217,3 @@ Currently implemented in a **single backend**, but logically separated.
 > **Logout kills the session, not the already-issued permission slip.**
 
 ---
-
-## 🏗️ System Architecture Diagram
-
-```mermaid
-graph TD
-    A[Client Request] --> B[Express Server]
-    B --> C[requestIdMiddleware]
-    C --> D[express.json & cookieParser]
-    D --> E[generalLimiter]
-    E --> F[Routes /auth/*]
-    
-    F --> G{Auth Routes}
-    G -->|POST /signup| H[authLimiter]
-    G -->|POST /login| H
-    G -->|POST /refresh| H
-    G -->|GET /me| I[generalLimiter + authMiddleware]
-    G -->|POST /logout| I
-    G -->|DELETE /admin/users/:id| J[generalLimiter + authMiddleware + requireRole ADMIN]
-    
-    H --> K[validate Schema]
-    K --> L[asyncHandler Controller]
-    L --> M[Controller Logic]
-    M --> N[Database MongoDB]
-    M --> O[Token Utils]
-    O --> P[JWT Sign/Verify]
-    
-    I --> Q[authMiddleware]
-    Q --> R[Verify Access Token]
-    R -->|Valid| L
-    R -->|Invalid| S[401 Error]
-    
-    J --> Q
-    Q --> T[requireRole]
-    T -->|Has Role| L
-    T -->|No Role| U[403 Error]
-    
-    M --> V[log Function]
-    V --> W[Console JSON Log]
-    
-    L --> X[Response]
-    X --> Y[errorHandler on Error]
-    Y --> Z[Structured Error Log]
-    
-    N --> AA[Mongoose Models]
-    AA --> AB[User Model]
-```
