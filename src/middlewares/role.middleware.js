@@ -10,7 +10,7 @@ export const requireRole = (role) => {
             throw err;
         }
 
-        if(user.role != role) {
+        if (user.role != role) {
             const err = new Error("Forbidden");
             err.statusCode = 403;
             throw err;

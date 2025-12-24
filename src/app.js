@@ -2,6 +2,7 @@ import express from "express"
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js"
 import { errorHandler } from "./middlewares/error.middleware.js";
+import { generalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 
 const app = express();
@@ -9,6 +10,8 @@ const app = express();
 app.use(express.json());
 
 app.use(cookieParser());
+
+app.use(generalLimiter);
 
 app.get("/health", (req, res) => {
     res.send("OK");
